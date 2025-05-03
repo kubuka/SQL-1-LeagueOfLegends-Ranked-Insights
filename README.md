@@ -87,13 +87,8 @@ GROUP BY position
 ORDER BY winrate DESC;
 ```
 
-| position | winrate |
-|----------|---------|
-| SUPPORT  | 50.04%  |
-| BOTTOM   | 50.03%  |
-| MIDDLE   | 50.01%  |
-| TOP      | 49.99%  |
-| JUNGLE   | 49.95%  |
+![role_winrate](https://github.com/user-attachments/assets/90187910-aea7-498b-ab17-996b674cfacf)
+
 
 **💡Insights:**  
 Differences are minimal, but **Support**, **Bottom**, and **Mid** roles slightly outperform **Top** and **Jungle** in average win rate. This suggests a relatively balanced game state, with a marginal edge for utility and scaling roles.
@@ -339,6 +334,76 @@ ORDER BY total_games DESC
 - The majority of ranked games are played in the **evening** (42.81%) and **afternoon** (34.04%).
 - **Morning** and **night** hours account for significantly fewer games, totaling just over 23% combined.
 - This distribution likely reflects typical player activity aligned with free time outside of work or school hours.
+
+## Hard Carry: How Often Does One Player Win the Game?
+
+`hard_carry.sql` examins how often a single player achieved **more than 50% of their team’s total kills** — the classic definition of a *hard carry*. This performance indicates an unusually dominant impact by one player compared to their teammates.
+
+### SQL
+```sql
+WITH kills AS (
+    SELECT
+        game_id,
+        participant_id,
+        sum(kills) as kills,
+        CASE 
+            WHEN participant_id BETWEEN 1 AND 5 THEN 'blue'
+            WHEN participant_id BETWEEN 6 AND 10 THEN 'red'
+        END AS team
+    FROM lol_ranked_matches
+    GROUP BY game_id, participant_id
+),
+
+kills_with_team_total AS (
+    SELECT
+        *,
+        SUM(kills) OVER (PARTITION BY game_id, team) AS team_kills
+    FROM kills
+),
+
+hardcarry_games AS (
+    SELECT game_id
+    FROM kills_with_team_total
+    WHERE kills > team_kills / 2
+),
+all_games AS (
+    SELECT game_id FROM lol_ranked_matches
+)
+
+SELECT 
+    (SELECT COUNT(game_id) FROM hardcarry_games) AS hardcarried_games,
+    (SELECT COUNT(game_id) FROM all_games) AS total_games,
+    ROUND(100.0 * (SELECT COUNT(game_id) FROM hardcarry_games) / (SELECT COUNT(game_id) FROM all_games), 2) AS percent_hardcarried
+;
+```
+
+| Games with Hard Carry | Total Games | Percentage of Hard Carry Games |
+|------------------------|-------------|--------------------------------|
+| 1,185                  | 68,297      | **1.74%**                      |
+
+**💡Insights:** Hard carries are rare — occurring in just **1 out of every 57 games**. Despite common beliefs, individual players **rarely win games alone**. League of Legends remains a team-based game where cooperation is key to success.
+
+## 📊 Project Summary
+
+- **Top KDA Champions**: Support-oriented champions like **Yuumi**, **Janna**, and **Ivern** dominated the highest average KDA ratios, highlighting their sustained influence without frequent deaths.
+- **Role Winrates**: The **Support** and **Bottom (ADC)** roles slightly outperformed others in winrate, while **Jungle** showed the lowest average winrate, possibly due to its higher strategic complexity.
+- **Mastery and Vision Impact**: Winning teams had **more mastery tokens** (avg. 15.3 vs. 13.0) and **higher vision scores** (avg. 27.34 vs. 25.63), reinforcing the idea that experience and map control are critical to victory.
+- **Team Kills Correlation**: In 93% of the games, the team with more kills ended up winning, showing a strong correlation between aggression and outcome.
+- **Gold Difference**: Average gold difference between teams was **8,808**, which suggests that economic leads are often substantial and likely decisive.
+- **Game Duration vs. Elo**: Higher ELO games were slightly shorter (avg. 29:14) than lower ELO ones (30:13), likely due to better coordination and fewer mistakes.
+- **Time of Day Trends**: Most games were played in the **evening** (42.8%), with **afternoon** (34.0%) being the second most popular period.
+- **Hard Carry Instances**: Only **1.74%** of matches featured a "hard carry" (a player with over 50% of their team's total kills), showing that most wins are team-driven rather than solo efforts.
+
+## 🧠 What I Learned
+
+Through this project, I significantly improved my data analysis workflow and deepened my understanding of:
+
+- 🛠 **Advanced SQL techniques**: including window functions, CTEs, joins, subqueries, and performance-oriented filtering.
+- 📈 **Data storytelling**: converting raw numbers into clear insights using visualizations.
+- 🗃 **Relational data structures**: understanding how player- and game-level data can be combined to yield meaningful team-level metrics.
+- 🧩 **Statistical reasoning**: interpreting averages, ratios, and trends to support real gameplay conclusions.
+- 📄 **Documentation best practices**: writing readable, maintainable, and informative project summaries.
+
 
 
 
