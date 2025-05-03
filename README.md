@@ -2,6 +2,9 @@
 This project explores key metrics from ranked *League of Legends* matches to uncover insights about win conditions, player behavior, and game dynamics. The analysis uses PostgreSQL to query a dataset (`lol_ranked_matches`) containing match details such as roles, champion performance, vision scores, and more. Below is a breakdown of each SQL script, its purpose, and improvements applied.
 
 # 📝Scripts Overview
+1. [Champion Win Rate](#champion-win-rate)
+2. [Highest KDA Champions](#highest-kds-champions)
+3. [Mastery Tokens vs. Win Rate](#Mastery-Tokens-vs.-Win-Rate)
 
 ## Champion Win Rate 🏆
 
@@ -129,7 +132,7 @@ FROM team_summary;
 **💡Insights:**  
 Winning teams have a noticeably higher average token count (**15.30**) compared to losing teams (**13.03**). This suggests that champion mastery — reflecting experience — correlates positively with match success.
 
-## Vision Score and Match Outcomes
+## Vision Score and Match Outcomes 👀
 
 `visionscore_winrate.sql` analyzes the relationship between team vision control and match results by calculating the average vision score of winning and losing teams.
 
@@ -170,7 +173,7 @@ FROM team_summary;
 **💡Insights:**  
 Winning teams have a higher average vision score (**27.34**) compared to losing teams (**25.63**), highlighting the strategic importance of map awareness and warding in securing victories.
 
-## Team Kills and Win Probability
+## Team Kills and Win Probability ⚔️
 
 `team_kills_winrate.sql` evaluates how often the team with more kills ends up winning the match by comparing total team kills and outcomes across all games.
 
@@ -223,7 +226,7 @@ WHERE
 **💡Insights:**  
 In a striking **93%** of matches, the team with more kills also wins. This strongly suggests that teamfight success is a key indicator of victory, though it's worth noting that some wins still occur despite a kill deficit.
 
-## Average Gold Difference Between Teams
+## Average Gold Difference Between Teams 💰
 
 `average_golddiff.sql` calculates the average gold difference between the two teams at the end of each match, reflecting how lopsided matches tend to be in terms of economy.
 
@@ -257,7 +260,7 @@ WHERE
 **💡Insights:**  
 The average gold gap between teams at the end of a game is **8808.06** gold. This highlights how significant gold leads are by the time matches conclude, often pointing to dominant performances by the winning team.
 
-## Game Duration by ELO Tier
+## Game Duration by ELO Tier ⏳
 
 `elo_gametime.sql` examines the average game duration based on the overall ELO tier of players in each match. ELO is estimated by assigning numerical values to each rank and summing them across the match.
 
@@ -304,7 +307,7 @@ GROUP BY elo_category
 - **Higher ELO** matches (Platinum and above) tend to be slightly shorter, averaging **29 minutes and 14 seconds**.  
 This suggests that higher-ranked players may play more decisively or efficiently, leading to quicker game conclusions.
 
-### Ranked Match Distribution by Time of Day
+## Ranked Match Distribution by Time of Day 🕰️
 
 `day_time_played_games.sql` analyzes when ranked matches are most frequently played, based on the UTC start time of each game. It segments games into four time-of-day periods.
 
