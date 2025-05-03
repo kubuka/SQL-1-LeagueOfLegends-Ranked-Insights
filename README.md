@@ -172,7 +172,7 @@ Winning teams have a higher average vision score (**27.34**) compared to losing 
 
 ## Team Kills and Win Probability
 
-`teamkills_winrate.sql` evaluates how often the team with more kills ends up winning the match by comparing total team kills and outcomes across all games.
+`team_kills_winrate.sql` evaluates how often the team with more kills ends up winning the match by comparing total team kills and outcomes across all games.
 
 ### SQL
 ```sql
@@ -225,7 +225,7 @@ In a striking **93%** of matches, the team with more kills also wins. This stron
 
 ## Average Gold Difference Between Teams
 
-`avg_gold_diff.sql` calculates the average gold difference between the two teams at the end of each match, reflecting how lopsided matches tend to be in terms of economy.
+`average_golddiff.sql` calculates the average gold difference between the two teams at the end of each match, reflecting how lopsided matches tend to be in terms of economy.
 
 ### SQL
 ```sql
