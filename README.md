@@ -2,9 +2,16 @@
 This project explores key metrics from ranked *League of Legends* matches to uncover insights about win conditions, player behavior, and game dynamics. The analysis uses PostgreSQL to query a dataset (`lol_ranked_matches`) containing match details such as roles, champion performance, vision scores, and more. Below is a breakdown of each SQL script, its purpose, and improvements applied.
 
 # 📝Scripts Overview
-1. [Champion Win Rate](#champion-win-rate)
-2. [Highest KDA Champions](#highest-kds-champions)
-3. [Mastery Tokens vs. Win Rate](#Mastery-Tokens-vs.-Win-Rate)
+1. [Champion Win Rate 🏆](#champion-win-rate)
+2. [Highest KDA Champions 🥇](#highest-kda-champions)
+3. [Win Rate by Role 👥](#win-rate-by-role)
+4. [Mastery Tokens vs. Win Rate ⚖️](#mastery-tokens-vs-win-rate)
+5. [Vision Score and Match Outcomes 👀](#vision-score-and-match-outcomes)
+6. [Team Kills and Win Probability ⚔️](#team-kills-and-win-probability)
+7. [Average Gold Difference Between Teams 💰](#average-gold-difference-between-teams)
+8. [Game Duration by ELO Tier ⏳](#game-duration-by-elo-tier)
+9. [Ranked Match Distribution by Time of Day 🕰️](#ranked-match-distribution-by-time-of-day)
+
 
 ## Champion Win Rate 🏆
 
