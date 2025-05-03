@@ -2,18 +2,18 @@
 This project explores key metrics from ranked *League of Legends* matches to uncover insights about win conditions, player behavior, and game dynamics. The analysis uses PostgreSQL to query a dataset (`lol_ranked_matches`) containing match details such as roles, champion performance, vision scores, and more. Below is a breakdown of each SQL script, its purpose, and improvements applied.
 
 # 📝Scripts Overview
-1. [Champion Win Rate 🏆](#champion-win-rate-🏆)
-2. [Highest KDA Champions 🥇](#highest-kda-champions-🥇)
-3. [Win Rate by Role 👥](#win-rate-by-role-👥)
-4. [Mastery Tokens vs. Win Rate ⚖️](#mastery-tokens-vs-win-rate-⚖️)
-5. [Vision Score and Match Outcomes 👀](#vision-score-and-match-outcomes-👀)
-6. [Team Kills and Win Probability ⚔️](#team-kills-and-win-probability-⚔️)
-7. [Average Gold Difference Between Teams 💰](#average-gold-difference-between-teams-💰)
-8. [Game Duration by ELO Tier ⏳](#game-duration-by-elo-tier-⏳)
-9. [Ranked Match Distribution by Time of Day 🕰️](#ranked-match-distribution-by-time-of-day-🕰️)
+1. [Champion Win Rate 🏆](#champion-win-rate)
+2. [Highest KDA Champions 🥇](#highest-kda-champions)
+3. [Win Rate by Role 👥](#win-rate-by-role)
+4. [Mastery Tokens vs. Win Rate ⚖️](#mastery-tokens-vs-win-rate)
+5. [Vision Score and Match Outcomes 👀](#vision-score-and-match-outcomes)
+6. [Team Kills and Win Probability ⚔️](#team-kills-and-win-probability)
+7. [Average Gold Difference Between Teams 💰](#average-gold-difference-between-teams)
+8. [Game Duration by ELO Tier ⏳](#game-duration-by-elo-tier)
+9. [Ranked Match Distribution by Time of Day 🕰️](#ranked-match-distribution-by-time-of-day)
 
 
-## Champion Win Rate 🏆
+## Champion Win Rate
 
 This script (`champ_winrate.sql`) calculates the win rate (%) for each champion by averaging match outcomes. Only champions with more than 100 games are included to ensure statistical significance. The query returns the top 100 champions sorted by 
 win rate.
@@ -46,7 +46,7 @@ LIMIT 100;
 **💡Insights:**  
 Champions like **Vex**, **Nunu**, and **Kog'Maw** top the win rate chart with over 58%, suggesting strong effectiveness in the current meta.
 
-## Highest KDA Champions 🥇
+## Highest KDA Champions
 
 `best_kda_champ.sql` calculates the average KDA ratio (kills + assists / deaths) for each champion in ranked solo queue games, then identifies the top 100 champions by KDA performance.
 
@@ -73,7 +73,7 @@ LIMIT 100;
 **💡Insights:**  
 Champions like **Yuumi**, **Rek'Sai**, and **Ivern** achieve the highest average KDA ratios, reflecting strong survivability and team utility rather than raw damage output. The list is dominated by supports and junglers, indicating their central role in coordinated ranked play.
 
-## Win Rate by Role 👥
+## Win Rate by Role
 
 `role_winrate.sql` calculates the average win rate for each in-game role based on the `position` field. It aggregates results across all ranks to reveal which roles tend to have the highest overall impact on match outcomes.
 
@@ -98,7 +98,7 @@ ORDER BY winrate DESC;
 **💡Insights:**  
 Differences are minimal, but **Support**, **Bottom**, and **Mid** roles slightly outperform **Top** and **Jungle** in average win rate. This suggests a relatively balanced game state, with a marginal edge for utility and scaling roles.
 
-## Mastery Tokens vs. Win Rate ⚖️
+## Mastery Tokens vs. Win Rate
 
 This script (`mastery_winrate.sql`) compares the average number of mastery tokens earned by winning and losing teams. It aggregates match data by team, associating mastery tokens with match outcomes.
 
@@ -139,7 +139,7 @@ FROM team_summary;
 **💡Insights:**  
 Winning teams have a noticeably higher average token count (**15.30**) compared to losing teams (**13.03**). This suggests that champion mastery — reflecting experience — correlates positively with match success.
 
-## Vision Score and Match Outcomes 👀
+## Vision Score and Match Outcomes
 
 `visionscore_winrate.sql` analyzes the relationship between team vision control and match results by calculating the average vision score of winning and losing teams.
 
@@ -180,7 +180,7 @@ FROM team_summary;
 **💡Insights:**  
 Winning teams have a higher average vision score (**27.34**) compared to losing teams (**25.63**), highlighting the strategic importance of map awareness and warding in securing victories.
 
-## Team Kills and Win Probability ⚔️
+## Team Kills and Win Probability
 
 `team_kills_winrate.sql` evaluates how often the team with more kills ends up winning the match by comparing total team kills and outcomes across all games.
 
@@ -233,7 +233,7 @@ WHERE
 **💡Insights:**  
 In a striking **93%** of matches, the team with more kills also wins. This strongly suggests that teamfight success is a key indicator of victory, though it's worth noting that some wins still occur despite a kill deficit.
 
-## Average Gold Difference Between Teams 💰
+## Average Gold Difference Between Teams
 
 `average_golddiff.sql` calculates the average gold difference between the two teams at the end of each match, reflecting how lopsided matches tend to be in terms of economy.
 
@@ -267,7 +267,7 @@ WHERE
 **💡Insights:**  
 The average gold gap between teams at the end of a game is **8808.06** gold. This highlights how significant gold leads are by the time matches conclude, often pointing to dominant performances by the winning team.
 
-## Game Duration by ELO Tier ⏳
+## Game Duration by ELO Tier
 
 `elo_gametime.sql` examines the average game duration based on the overall ELO tier of players in each match. ELO is estimated by assigning numerical values to each rank and summing them across the match.
 
@@ -314,7 +314,7 @@ GROUP BY elo_category
 - **Higher ELO** matches (Platinum and above) tend to be slightly shorter, averaging **29 minutes and 14 seconds**.  
 This suggests that higher-ranked players may play more decisively or efficiently, leading to quicker game conclusions.
 
-## Ranked Match Distribution by Time of Day 🕰️
+## Ranked Match Distribution by Time of Day
 
 `day_time_played_games.sql` analyzes when ranked matches are most frequently played, based on the UTC start time of each game. It segments games into four time-of-day periods.
 
