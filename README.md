@@ -167,12 +167,12 @@ FROM team_summary;
 | Win     | 27.34            |
 | Lose    | 25.63            |
 
-**Insights:**  
+**💡Insights:**  
 Winning teams have a higher average vision score (**27.34**) compared to losing teams (**25.63**), highlighting the strategic importance of map awareness and warding in securing victories.
 
 ## Team Kills and Win Probability
 
-`teamkills_winrate.sql` evaluates how often the team with more kills ends up winning the match by comparing total team kills and outcomes across all games.
+`team_kills_winrate.sql` evaluates how often the team with more kills ends up winning the match by comparing total team kills and outcomes across all games.
 
 ### SQL
 ```sql
@@ -220,12 +220,12 @@ WHERE
 |-------------|----------------|---------|
 | 6830        | 6346           | 93.00%  |
 
-**Insights:**  
+**💡Insights:**  
 In a striking **93%** of matches, the team with more kills also wins. This strongly suggests that teamfight success is a key indicator of victory, though it's worth noting that some wins still occur despite a kill deficit.
 
 ## Average Gold Difference Between Teams
 
-`avg_gold_diff.sql` calculates the average gold difference between the two teams at the end of each match, reflecting how lopsided matches tend to be in terms of economy.
+`average_golddiff.sql` calculates the average gold difference between the two teams at the end of each match, reflecting how lopsided matches tend to be in terms of economy.
 
 ### SQL
 ```sql
@@ -254,7 +254,7 @@ WHERE
 |----------------|
 | 8808.06        |
 
-**Insights:**  
+**💡Insights:**  
 The average gold gap between teams at the end of a game is **8808.06** gold. This highlights how significant gold leads are by the time matches conclude, often pointing to dominant performances by the winning team.
 
 ## Game Duration by ELO Tier
@@ -299,7 +299,7 @@ GROUP BY elo_category
 | HIGH         | 29:14               | 3895         |
 | LOW          | 30:13               | 2935         |
 
-**Insights:**  
+**💡Insights:**  
 - Matches involving **lower ELO** players (Iron to Gold) last on average **30 minutes and 13 seconds**.  
 - **Higher ELO** matches (Platinum and above) tend to be slightly shorter, averaging **29 minutes and 14 seconds**.  
 This suggests that higher-ranked players may play more decisively or efficiently, leading to quicker game conclusions.
@@ -323,8 +323,9 @@ FROM lol_ranked_matches
 GROUP BY time_of_day
 ORDER BY total_games DESC
 ```
+![games_by_time_of_day](https://github.com/user-attachments/assets/e23a1815-75e0-43bb-8486-c82cef3103c8)
 
-**Key findings:**
+**💡Insights:**
 - The majority of ranked games are played in the **evening** (42.81%) and **afternoon** (34.04%).
 - **Morning** and **night** hours account for significantly fewer games, totaling just over 23% combined.
 - This distribution likely reflects typical player activity aligned with free time outside of work or school hours.
