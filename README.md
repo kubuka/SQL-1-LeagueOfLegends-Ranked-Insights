@@ -129,5 +129,216 @@ FROM team_summary;
 **💡Insights:**  
 Winning teams have a noticeably higher average token count (**15.30**) compared to losing teams (**13.03**). This suggests that champion mastery — reflecting experience — correlates positively with match success.
 
+## Vision Score and Match Outcomes
+
+`visionscore_winrate.sql` analyzes the relationship between team vision control and match results by calculating the average vision score of winning and losing teams.
+
+### SQL
+```sql
+WITH team_vision AS (
+    SELECT
+        game_id,
+        CASE 
+            WHEN participant_id BETWEEN 1 AND 5 THEN 'blue'
+            WHEN participant_id BETWEEN 6 AND 10 THEN 'red'
+        END AS team,
+        win::INTEGER AS win,
+        vision_score
+    FROM lol_ranked_matches
+),
+team_summary AS (
+    SELECT
+        game_id,
+        team,
+        AVG(win)::INTEGER AS win,
+        AVG(vision_score) AS avg_vision
+    FROM team_vision
+    GROUP BY game_id, team
+    ORDER BY game_id
+)
+SELECT
+    ROUND(AVG(CASE WHEN win = 1 THEN avg_vision END), 2) AS vision_win,
+    ROUND(AVG(CASE WHEN win = 0 THEN avg_vision END), 2) AS vision_lose
+FROM team_summary;
+```
+
+| outcome | avg_vision_score |
+|---------|------------------|
+| Win     | 27.34            |
+| Lose    | 25.63            |
+
+**Insights:**  
+Winning teams have a higher average vision score (**27.34**) compared to losing teams (**25.63**), highlighting the strategic importance of map awareness and warding in securing victories.
+
+## Team Kills and Win Probability
+
+`teamkills_winrate.sql` evaluates how often the team with more kills ends up winning the match by comparing total team kills and outcomes across all games.
+
+### SQL
+```sql
+WITH team_kills AS (
+    SELECT
+        game_id,
+        CASE 
+            WHEN participant_id BETWEEN 1 AND 5 THEN 'blue'
+            WHEN participant_id BETWEEN 6 AND 10 THEN 'red'
+        END AS team,
+        SUM(kills) AS kills,
+        ROUND(AVG(win::INTEGER),0) as win
+    FROM lol_ranked_matches
+    GROUP BY game_id, team
+)
+
+SELECT 
+    COUNT(*) AS total_games,
+    SUM(
+        CASE 
+            WHEN tk1.kills > tk2.kills  AND tk1.win = 1 THEN 1
+            WHEN tk1.kills < tk2.kills  AND tk1.win = 0 THEN 1
+            ELSE 0
+        END
+    ) as more_kills_win,
+    ROUND(
+        SUM(
+        CASE 
+            WHEN tk1.kills > tk2.kills  AND tk1.win = 1 THEN 1
+            WHEN tk1.kills < tk2.kills  AND tk1.win = 0 THEN 1
+            ELSE 0
+        END
+    )/ COUNT(*)::numeric,2) * 100 || '%' as winrate
+    
+FROM
+    team_kills tk1
+JOIN
+    team_kills tk2
+    ON tk1.game_id = tk2.game_id AND tk1.team != tk2.team
+WHERE
+    tk1.team = 'blue';
+```
+
+| total_games | more_kills_win | winrate |
+|-------------|----------------|---------|
+| 6830        | 6346           | 93.00%  |
+
+**Insights:**  
+In a striking **93%** of matches, the team with more kills also wins. This strongly suggests that teamfight success is a key indicator of victory, though it's worth noting that some wins still occur despite a kill deficit.
+
+## Average Gold Difference Between Teams
+
+`avg_gold_diff.sql` calculates the average gold difference between the two teams at the end of each match, reflecting how lopsided matches tend to be in terms of economy.
+
+### SQL
+```sql
+WITH team_gold AS (
+    SELECT
+        game_id,
+        CASE 
+            WHEN participant_id BETWEEN 1 AND 5 THEN 'blue'
+            WHEN participant_id BETWEEN 6 AND 10 THEN 'red'
+        END AS team,
+        SUM(gold_earned) AS gold
+    FROM lol_ranked_matches
+    GROUP BY game_id, team
+)
+
+SELECT 
+    ROUND(AVG(ABS(t1.gold - t2.gold)),2) AS avg_gold_diff
+FROM team_gold as t1
+JOIN team_gold as t2
+    ON t1.game_id = t2.game_id AND t1.team != t2.team
+WHERE
+    t1.team = 'blue'
+```
+
+| avg_gold_diff |
+|----------------|
+| 8808.06        |
+
+**Insights:**  
+The average gold gap between teams at the end of a game is **8808.06** gold. This highlights how significant gold leads are by the time matches conclude, often pointing to dominant performances by the winning team.
+
+## Game Duration by ELO Tier
+
+`elo_gametime.sql` examines the average game duration based on the overall ELO tier of players in each match. ELO is estimated by assigning numerical values to each rank and summing them across the match.
+
+### SQL
+```sql
+with game_elo as (SELECT 
+    game_id,
+    avg(duration)::INTEGER as game_time,
+    SUM(CASE
+        WHEN solo_tier = 'IRON' THEN 0
+        WHEN solo_tier = 'BRONZE' THEN 1
+        WHEN solo_tier = 'SILVER' THEN 2
+        WHEN solo_tier = 'GOLD' THEN 3
+        WHEN solo_tier = 'PLATINUM' THEN 4
+        WHEN solo_tier = 'EMERALD' THEN 5
+        WHEN solo_tier = 'DIAMOND' THEN 6
+        WHEN solo_tier = 'MASTER' THEN 7
+        WHEN solo_tier = 'GRANDMASTER' THEN 8
+        WHEN solo_tier = 'CHALLENGER' THEN 9
+    ELSE 0
+    END) AS elo
+FROM lol_ranked_matches
+GROUP BY game_id
+)
+
+SELECT
+    LPAD((avg(game_time) / 60)::TEXT, 2, '0') || ':' || LPAD((avg(game_time) % 60)::TEXT, 2, '0') AS game_time_formatted,
+    COUNT(*) as total_games,
+    CASE
+        WHEN elo BETWEEN 0 AND 44 THEN 'LOW'
+        WHEN elo >= 45 THEN 'HIGH'
+    END AS elo_category
+FROM game_elo
+GROUP BY elo_category
+```
+
+| elo_category | game_time_formatted | total_games |
+|--------------|---------------------|--------------|
+| HIGH         | 29:14               | 3895         |
+| LOW          | 30:13               | 2935         |
+
+**Insights:**  
+- Matches involving **lower ELO** players (Iron to Gold) last on average **30 minutes and 13 seconds**.  
+- **Higher ELO** matches (Platinum and above) tend to be slightly shorter, averaging **29 minutes and 14 seconds**.  
+This suggests that higher-ranked players may play more decisively or efficiently, leading to quicker game conclusions.
+
+### Ranked Match Distribution by Time of Day
+
+`day_time_played_games.sql` analyzes when ranked matches are most frequently played, based on the UTC start time of each game. It segments games into four time-of-day periods.
+
+### SQL
+```sql
+SELECT
+    CASE 
+        WHEN EXTRACT(HOUR FROM start_utc) BETWEEN 0 AND 5 THEN 'night'
+        WHEN EXTRACT(HOUR FROM start_utc) BETWEEN 6 AND 11 THEN 'morning'
+        WHEN EXTRACT(HOUR FROM start_utc) BETWEEN 12 AND 17 THEN 'afternoon'
+        WHEN EXTRACT(HOUR FROM start_utc) BETWEEN 18 AND 23 THEN 'evening'
+    END AS time_of_day,
+    COUNT(*) AS total_games,
+    ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (), 2) AS percentage_of_total
+FROM lol_ranked_matches
+GROUP BY time_of_day
+ORDER BY total_games DESC
+```
+
+**Key findings:**
+- The majority of ranked games are played in the **evening** (42.81%) and **afternoon** (34.04%).
+- **Morning** and **night** hours account for significantly fewer games, totaling just over 23% combined.
+- This distribution likely reflects typical player activity aligned with free time outside of work or school hours.
+
+
+
+
+
+
+
+
+
+
+
+
 
 
